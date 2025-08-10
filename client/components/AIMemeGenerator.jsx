@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Sparkles, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 
-interface AIMemeGeneratorProps {
-  onMemeGenerated: (imageUrl: string, topText: string, bottomText: string) => void;
-}
-
-const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) => {
+const AIMemeGenerator = ({ onMemeGenerated }) => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [serverConnected, setServerConnected] = useState(false);
+
+  // Adjust this if your backend is deployed elsewhere
+  const backendUrl = "http://localhost:3001";
 
   // ✅ Check if backend is alive
   useEffect(() => {
@@ -20,7 +19,7 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
 
   const checkHealth = async () => {
     try {
-      const r = await fetch("/health");
+      const r = await fetch(`${backendUrl}/health`);
       if (r.ok) {
         setServerConnected(true);
         setError("");
@@ -34,7 +33,7 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
     }
   };
 
-  // ✅ Generate meme image via Gemini API
+  // ✅ Generate meme image via backend
   const generateAIMeme = async () => {
     if (!prompt.trim()) {
       setError("Please enter a prompt for your meme");
@@ -49,7 +48,7 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
     setError("");
 
     try {
-      const resp = await fetch("/generate-image", {
+      const resp = await fetch(`${backendUrl}/generate-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -64,7 +63,7 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
       // Pass generated image back to parent
       onMemeGenerated(data.image, prompt, "");
       setPrompt("");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Generation error:", err);
       setError(err.message || "Failed to generate meme");
     } finally {
@@ -107,7 +106,7 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
               <p className="text-xs text-red-700">{error}</p>
               {!serverConnected && (
                 <p className="text-xs mt-1">
-                  Start backend: <code>cd server && npm run dev</code>
+                  Start backend: <code>cd server && npm start</code>
                 </p>
               )}
             </div>
@@ -125,7 +124,8 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
       >
         {isGenerating ? (
           <>
-            <Loader2 className="h-4 w-4 inline-block animate-spin" /> Generating...
+            <Loader2 className="h-4 w-4 inline-block animate-spin" />{" "}
+            Generating...
           </>
         ) : (
           <>
@@ -136,7 +136,9 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
 
       {/* Suggestions */}
       <div>
-        <p className="text-xs font-medium text-gray-700 mb-1">Need inspiration?</p>
+        <p className="text-xs font-medium text-gray-700 mb-1">
+          Need inspiration?
+        </p>
         <div className="space-y-1">
           {suggestions.map((s, i) => (
             <button
@@ -165,7 +167,9 @@ const AIMemeGenerator: React.FC<AIMemeGeneratorProps> = ({ onMemeGenerated }) =>
               serverConnected ? "text-green-600" : "text-yellow-600"
             }`}
           />
-          <span>{serverConnected ? "Backend connected" : "Backend disconnected"}</span>
+          <span>
+            {serverConnected ? "Backend connected" : "Backend disconnected"}
+          </span>
         </div>
       </div>
     </div>

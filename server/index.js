@@ -1,28 +1,56 @@
 import express from "express";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
 import cors from "cors";
 
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Health check route
+// Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Example AI meme generation route
-app.post("/generate-meme", async (req, res) => {
+// Generate image from Hugging Face
+app.post("/generate-image", async (req, res) => {
   const { prompt } = req.body;
 
-  // Here you'll call your AI image generation API
-  // For now just return a placeholder
-  res.json({
-    success: true,
-    imageUrl: "https://placekitten.com/600/400"
-  });
+  if (!prompt) {
+    return res.status(400).json({ error: "Prompt is required" });
+  }
+
+  try {
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HF_API_KEY}`, // ✅ from .env
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs: prompt }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText);
+    }
+
+    const buffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(buffer).toString("base64");
+    const imageUrl = `data:image/png;base64,${base64Image}`;
+
+    res.json({ image: imageUrl });
+  } catch (err) {
+    console.error("Error generating image:", err);
+    res.status(500).json({ error: "Image generation failed" });
+  }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });

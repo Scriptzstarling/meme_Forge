@@ -1,37 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, Grid3X3, Sparkles } from 'lucide-react';
 import { MEME_TEMPLATES } from '../constants/memeTemplates';
 import AIMemeGenerator from './AIMemeGenerator';
 
-interface ImageUploadProps {
-  onImageSelect: (imageUrl: string) => void;
-  onAIMemeGenerated?: (imageUrl: string, topText: string, bottomText: string) => void;
-}
+const ImageUpload = ({ onImageSelect, onAIMemeGenerated }) => {
+  const [activeTab, setActiveTab] = useState('upload');
+  const fileInputRef = useRef(null);
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, onAIMemeGenerated }) => {
-  const [activeTab, setActiveTab] = useState<'upload' | 'templates' | 'ai'>('upload');
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          onImageSelect(e.target.result as string);
+          onImageSelect(e.target.result);
         }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleTemplateSelect = (templateUrl: string) => {
+  const handleTemplateSelect = (templateUrl) => {
     onImageSelect(templateUrl);
   };
 
-  const handleAIMemeGenerated = (imageUrl: string, topText: string, bottomText: string) => {
+  const handleAIMemeGenerated = (imageUrl, topText, bottomText) => {
     onImageSelect(imageUrl);
-    onAIMemeGenerated?.(imageUrl, topText, bottomText);
+    if (onAIMemeGenerated) {
+      onAIMemeGenerated(imageUrl, topText, bottomText);
+    }
   };
 
   return (
@@ -73,7 +70,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, onAIMemeGenera
         </button>
       </div>
 
-      {/* Content */}
+      {/* Upload Tab */}
       {activeTab === 'upload' && (
         <div>
           <input
@@ -96,6 +93,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, onAIMemeGenera
         </div>
       )}
 
+      {/* Templates Tab */}
       {activeTab === 'templates' && (
         <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
           {MEME_TEMPLATES.map((template, index) => (
@@ -119,6 +117,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, onAIMemeGenera
         </div>
       )}
 
+      {/* AI Tab */}
       {activeTab === 'ai' && (
         <AIMemeGenerator onMemeGenerated={handleAIMemeGenerated} />
       )}
