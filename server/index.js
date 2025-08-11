@@ -2,18 +2,23 @@ import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors";
+import multer from "multer";
+import fs from "fs";
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health check
+// --------------------- MULTER SETUP FOR IMAGE UPLOAD (OPTIONAL) ---------------------
+const upload = multer({ dest: "uploads/" });
+
+// --------------------- HEALTH CHECK ---------------------
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Generate image from Hugging Face
+// --------------------- IMAGE GENERATION (AI) ---------------------
 app.post("/generate-image", async (req, res) => {
   const { prompt } = req.body;
 
@@ -27,7 +32,7 @@ app.post("/generate-image", async (req, res) => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`, // ✅ from .env
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ inputs: prompt }),
@@ -50,6 +55,7 @@ app.post("/generate-image", async (req, res) => {
   }
 });
 
+// --------------------- START SERVER ---------------------
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
