@@ -1,7 +1,6 @@
-// client/src/constants/memeTemplates.jsx
-const memeModules = import.meta.glob('/public/*.{png,jpg,jpeg,gif}', { eager: true });
+import images from '../constants/images.json';
 
-export const MEME_TEMPLATES = Object.keys(memeModules).map((path) => ({
-  name: path.split('/').pop().split('.')[0],
-  url: path, // No .replace needed — vite serves /public as root
+export const MEME_TEMPLATES = images.map((url) => ({
+  name: url.split('/').pop().split('.')[0], // filename se naam banayega
+  url: url
 }));
