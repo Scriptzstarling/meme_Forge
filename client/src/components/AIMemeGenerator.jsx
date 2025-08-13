@@ -7,8 +7,8 @@ const AIMemeGenerator = ({ onMemeGenerated }) => {
   const [error, setError] = useState("");
   const [serverConnected, setServerConnected] = useState(false);
 
-  // Adjust this if your backend is deployed elsewhere
-  const backendUrl = "http://localhost:3001";
+  // ✅ Use env variable or default to Vite proxy
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
 
   // ✅ Check if backend is alive
   useEffect(() => {
@@ -19,7 +19,7 @@ const AIMemeGenerator = ({ onMemeGenerated }) => {
 
   const checkHealth = async () => {
     try {
-      const r = await fetch(`${backendUrl}/health`);
+      const r = await fetch(`${backendUrl}/api/health`);
       if (r.ok) {
         setServerConnected(true);
         setError("");
@@ -48,7 +48,7 @@ const AIMemeGenerator = ({ onMemeGenerated }) => {
     setError("");
 
     try {
-      const resp = await fetch(`${backendUrl}/generate-image`, {
+      const resp = await fetch(`${backendUrl}/api/generate-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -92,6 +92,7 @@ const AIMemeGenerator = ({ onMemeGenerated }) => {
           placeholder="e.g., A surprised cat when it sees a cucumber..."
           rows={3}
           className="w-full border rounded p-2 text-sm"
+          maxLength={500}
           disabled={isGenerating}
         />
         <div className="text-xs text-gray-500 mt-1">{prompt.length}/500</div>
@@ -124,8 +125,7 @@ const AIMemeGenerator = ({ onMemeGenerated }) => {
       >
         {isGenerating ? (
           <>
-            <Loader2 className="h-4 w-4 inline-block animate-spin" />{" "}
-            Generating...
+            <Loader2 className="h-4 w-4 inline-block animate-spin" /> Generating...
           </>
         ) : (
           <>

@@ -1,99 +1,74 @@
-import React from 'react';
+import React from "react";
 
-const TextControls = ({ text, onChange, placeholder }) => {
-  const updateText = (updates) => {
-    onChange({ ...text, ...updates });
-  };
+const TextControls = ({ text, onChange, placeholder = "" }) => {
+  const update = (patch) => onChange({ ...text, ...patch });
 
   return (
-    <div className="flex flex-wrap items-center gap-6 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
-      
-      {/* Text */}
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+      <div className="flex flex-col">
         <label className="text-[10px] font-medium text-gray-600">Text</label>
         <input
           type="text"
           value={text.content}
-          onChange={(e) => updateText({ content: e.target.value })}
+          onChange={(e) => update({ content: e.target.value })}
           placeholder={placeholder}
-          className="w-32 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+          className="w-40 px-2 py-1 text-sm border border-gray-300 rounded"
         />
       </div>
 
-      {/* Font Size */}
       <div className="flex items-center gap-2">
-        <label className="text-[10px] font-medium text-gray-600">Font</label>
+        <label className="text-[10px] font-medium text-gray-600">Size</label>
         <input
           type="range"
-          min="16"
+          min="12"
           max="120"
           value={text.fontSize}
-          onChange={(e) => updateText({ fontSize: parseInt(e.target.value) })}
-          className="w-20"
+          onChange={(e) => update({ fontSize: parseInt(e.target.value, 10) })}
+          className="w-28"
         />
         <span className="text-[10px]">{text.fontSize}px</span>
       </div>
 
-      {/* Text Color */}
+      <div className="flex items-center gap-2">
+        <label className="text-[10px] font-medium text-gray-600">Weight</label>
+        <input
+          type="range"
+          min="100"
+          max="900"
+          step="100"
+          value={text.fontWeight}
+          onChange={(e) => update({ fontWeight: parseInt(e.target.value, 10) })}
+          className="w-28"
+        />
+        <span className="text-[10px]">{text.fontWeight}</span>
+      </div>
+
       <div className="flex items-center gap-2">
         <label className="text-[10px] font-medium text-gray-600">Color</label>
         <input
           type="color"
           value={text.color}
-          onChange={(e) => updateText({ color: e.target.value })}
-          className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
-        />
-        <input
-          type="text"
-          value={text.color}
-          onChange={(e) => updateText({ color: e.target.value })}
-          className="w-14 px-1 py-0.5 text-xs border border-gray-300 rounded"
+          onChange={(e) => update({ color: e.target.value })}
+          className="w-7 h-7 border rounded"
         />
       </div>
 
-      {/* Outline Color */}
       <div className="flex items-center gap-2">
         <label className="text-[10px] font-medium text-gray-600">Outline</label>
         <input
           type="color"
           value={text.stroke}
-          onChange={(e) => updateText({ stroke: e.target.value })}
-          className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
+          onChange={(e) => update({ stroke: e.target.value })}
+          className="w-7 h-7 border rounded"
         />
-        <input
-          type="text"
-          value={text.stroke}
-          onChange={(e) => updateText({ stroke: e.target.value })}
-          className="w-14 px-1 py-0.5 text-xs border border-gray-300 rounded"
-        />
-      </div>
-
-      {/* Outline Width */}
-      <div className="flex items-center gap-2">
-        <label className="text-[10px] font-medium text-gray-600">O-Width</label>
         <input
           type="range"
           min="0"
-          max="8"
+          max="10"
           value={text.strokeWidth}
-          onChange={(e) => updateText({ strokeWidth: parseInt(e.target.value) })}
-          className="w-16"
+          onChange={(e) => update({ strokeWidth: parseInt(e.target.value, 10) })}
+          className="w-24"
         />
-        <span className="text-[10px]">{text.strokeWidth}px</span>
-      </div>
-
-      {/* Vertical Position */}
-      <div className="flex items-center gap-2">
-        <label className="text-[10px] font-medium text-gray-600">Y Pos</label>
-        <input
-          type="range"
-          min="5"
-          max="95"
-          value={text.y}
-          onChange={(e) => updateText({ y: parseInt(e.target.value) })}
-          className="w-20"
-        />
-        <span className="text-[10px]">{text.y}%</span>
       </div>
     </div>
   );
