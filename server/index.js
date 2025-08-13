@@ -15,6 +15,20 @@ app.use(clerkMiddleware());
 // --------------------- MULTER SETUP FOR IMAGE UPLOAD (OPTIONAL) ---------------------
 const upload = multer({ dest: "uploads/" });
 
+// --------------------- ROOT ROUTE ---------------------
+app.get("/", (req, res) => {
+  res.send(`
+    <h1>Meme Forge API 🚀</h1>
+    <p>Status: Running ✅</p>
+    <p>Available routes:</p>
+    <ul>
+      <li><a href="/health">/health</a> - Quick health check</li>
+      <li>POST /generate-image - Generate memes using AI</li>
+      <li>POST /api/captions - Generate witty captions (auth required)</li>
+    </ul>
+  `);
+});
+
 // --------------------- HEALTH CHECK ---------------------
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
